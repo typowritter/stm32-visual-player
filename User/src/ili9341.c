@@ -1,13 +1,15 @@
-//*****************************************************************************
-//
-// ili9341.c
-//
-//*****************************************************************************
+/**
+  ******************************************************************************
+  * @file    ili9341.c
+  * @author  杨向南 yxnan@pm.me
+  * @date    2020-11-14
+  * @brief   SPI driver for ili9341 controller
+  ******************************************************************************
+  */
 
 #include "stm32f10x.h"
 #include "ili9341.h"
 #include "delay.h"
-#include "bsp_led.h"
 
 static void SPI_init();
 static void TFT_reset();
@@ -15,9 +17,6 @@ static void TFT_config();
 static void sendCmd(uint8_t number);
 static void sendParameter(uint8_t number);
 static void sendColor(uint16_t color);
-static void set_font(sFONT* font);
-static void set_backColor(uint16_t color);
-static void set_foreColor(uint16_t color);
 static void set_gram(uint8_t ucOption);
 static void set_cursor(uint16_t x, uint16_t y);
 static void draw_pixel(uint16_t x, uint16_t y);
@@ -36,7 +35,7 @@ static sFONT*   currentFont;
 uint16_t x_Max;
 uint16_t y_Max;
 
-static void set_font(sFONT* font)
+void set_font(sFONT* font)
 {
     currentFont = font;
 }
@@ -46,12 +45,12 @@ sFONT* get_font()
     return currentFont;
 }
 
-static void set_backColor(uint16_t color)
+void set_backColor(uint16_t color)
 {
     backColor = color;
 }
 
-static void set_foreColor(uint16_t color)
+void set_foreColor(uint16_t color)
 {
     foreColor = color;
 }
@@ -117,7 +116,7 @@ static void TFT_unselect()
 static void TFT_reset()
 {
     GPIO_ResetBits(RES_PORT, RES_PIN);
-    delay_ms(12); // tRW_min = 10us
+    delay_us(12); // tRW_min = 10us
 
     GPIO_SetBits(RES_PORT, RES_PIN);
     delay_ms(10); // tRT_max = 5ms
@@ -440,7 +439,7 @@ void TFT_init()
 
     set_gram(1);
     set_foreColor(BLACK);
-    set_backColor(GREEN);
+    set_backColor(WHITE);
     set_font(&Font8x16);
 
     fill_screen();

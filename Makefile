@@ -4,7 +4,7 @@
 
 # ------------------------------------------------
 # Generic Makefile (based on gcc)
-# Modified by yxnan@pm.me
+# Modified by 杨向南 yxnan@pm.me
 # ------------------------------------------------
 
 ######################################
@@ -17,7 +17,7 @@ TARGET = main
 # building variables
 ######################################
 # debug build?
-DEBUG = 0
+DEBUG = 1
 # custom c flags
 OPT = -Og -Wall -Wno-implicit-function-declaration \
 -Wno-discarded-qualifiers -Wno-missing-braces
@@ -37,6 +37,7 @@ C_SOURCES =  \
 User/src/main.c \
 User/src/tty.c \
 User/src/fonts.c \
+User/src/gui.c \
 User/src/delay.c \
 User/src/stm32f10x_it.c \
 User/src/ili9341.c \

@@ -3,6 +3,7 @@
 #include "ili9341.h"
 // #include "bsp_tim.h"
 #include "delay.h"
+#include "gui.h"
 #ifdef DEBUG
 #include "tty.h"
 #endif
@@ -14,12 +15,10 @@ int main(void)
     #ifdef DEBUG
     tty_init();
     #endif
-    LED_GREEN();
     TFT_init();
 
-    draw_line(20, 40, 220, 200);
-    disp_string(20, 20, "1234567890");
-    LED_BLUE();
+    GUI_Init();
+    // LED_BLUE();
 
     while (1)
     {

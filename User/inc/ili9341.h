@@ -1,8 +1,11 @@
-//*****************************************************************************
-//
-// ili9341.h
-//
-//*****************************************************************************
+/**
+  ******************************************************************************
+  * @file    ili9341.h
+  * @author  杨向南 yxnan@pm.me
+  * @date    2020-11-14
+  * @brief   SPI driver for ili9341 controller
+  ******************************************************************************
+  */
 
 #ifndef __ILI9341_H
 #define __ILI9341_H
@@ -25,15 +28,15 @@
 #define RES_PIN             GPIO_Pin_13
 #define DC_PORT             GPIOA
 #define DC_PIN              GPIO_Pin_6
-#if HARD_SELECT
+#if SOFT_SELECT
 #define CS_PORT             GPIOC
 #define CS_PIN              GPIO_Pin_4
 #endif
 
-
 #define MAX_W       320
 #define MAX_H       240
 
+// RGB565 (16-bit)
 #define AQUA        0x07FF
 #define BLACK       0x0000
 #define BLUE        0x001F
@@ -74,6 +77,9 @@ void TFT_init();
 void clear_region(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 void draw_line(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
 void disp_string(uint16_t x, uint16_t y, char *pStr);
+void set_font(sFONT* font);
+void set_backColor(uint16_t color);
+void set_foreColor(uint16_t color);
 sFONT* get_font();
 
 #endif /* __ILI9341_H */
