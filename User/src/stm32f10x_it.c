@@ -26,6 +26,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h"
 #include "bsp_adc.h"
+#include "bsp_sdio_sdcard.h"
 
 extern __IO uint16_t ADC_ConvertedValue;
 
@@ -150,6 +151,12 @@ void ADC_IRQHandler(void)
     }
 
     ADC_ClearITPendingBit(ADC_x, ADC_IT_EOC);
+}
+
+void SDIO_IRQHandler(void)
+{
+    /* Process All SDIO Interrupt Sources */
+    SD_ProcessIRQSrc();
 }
 
 // void BASIC_TIM_IRQHandler(void)

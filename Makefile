@@ -43,9 +43,12 @@ User/src/stm32f10x_it.c \
 User/src/ili9341.c \
 User/src/bsp_led.c \
 User/src/bsp_adc.c \
-User/src/bsp_dac.c
+User/src/bsp_dac.c \
+User/src/bsp_sdio_sdcard.c\
+User/src/fatfs/ff.c \
+User/src/fatfs/diskio.c
 
-STDPERIPH_SOURCES =  \
+FIRMWARE_SOURCES =  \
 Libraries/CMSIS/system_stm32f10x.c \
 Libraries/CMSIS/core_cm3.c \
 Libraries/FWlib/src/stm32f10x_wwdg.c \
@@ -72,13 +75,14 @@ Libraries/FWlib/src/stm32f10x_bkp.c \
 Libraries/FWlib/src/stm32f10x_adc.c \
 Libraries/FWlib/src/misc.c
 
-STDPERIPH_COUNT = $(words $(STDPERIPH_SOURCES))
-STDPERIPH_OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(STDPERIPH_SOURCES:.c=.o)))
 
-ifneq ($(STDPERIPH_COUNT), $(words $(wildcard $(STDPERIPH_OBJECTS))))
-C_SOURCES += $(STDPERIPH_SOURCES)
+FIRMWARE_COUNT = $(words $(FIRMWARE_SOURCES))
+FIRMWARE_OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(FIRMWARE_SOURCES:.c=.o)))
+
+ifneq ($(FIRMWARE_COUNT), $(words $(wildcard $(FIRMWARE_OBJECTS))))
+C_SOURCES += $(FIRMWARE_SOURCES)
 else
-OBJECTS = $(STDPERIPH_OBJECTS)
+OBJECTS = $(FIRMWARE_OBJECTS)
 endif
 
 
@@ -145,7 +149,9 @@ AS_INCLUDES =
 C_INCLUDES =  \
 -ILibraries/CMSIS \
 -ILibraries/FWlib/inc \
+-IUser/src/fatfs \
 -IUser/inc
+
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -fdata-sections -ffunction-sections

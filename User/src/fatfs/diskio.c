@@ -7,31 +7,27 @@
 #include <string.h>
 #include "diskio.h"
 #include "stm32f10x.h"
-#include "./sdio/bsp_sdio_sdcard.h"
+#include "bsp_sdio_sdcard.h"
 
-/* ÎªÃ¿¸öÉè±¸¶¨ÒåÒ»¸öÎïÀí±àºÅ */
-#define ATA			           0     // SD¿¨
-#define SPI_FLASH		       1     // Ô¤ÁôÍâ²¿SPI FlashÊ¹ÓÃ
+/* ä¸ºæ¯ä¸ªè®¾å¤‡å®šä¹‰ä¸€ä¸ªç‰©ç†ç¼–å· */
+#define ATA			           0     // SDå¡
 
-#define SD_BLOCKSIZE     512 
+#define SD_BLOCKSIZE     512
 
 extern  SD_CardInfo SDCardInfo;
 
 /*-----------------------------------------------------------------------*/
-/* »ñÈ¡Éè±¸×´Ì¬                                                          */
+/* è·å–è®¾å¤‡çŠ¶æ€                                                          */
 /*-----------------------------------------------------------------------*/
 DSTATUS disk_status (
-	BYTE pdrv		/* ÎïÀí±àºÅ */
+	BYTE pdrv		/* ç‰©ç†ç¼–å· */
 )
 {
 	DSTATUS status = STA_NOINIT;
-	
+
 	switch (pdrv) {
 		case ATA:	/* SD CARD */
 			status &= ~STA_NOINIT;
-			break;
-    
-		case SPI_FLASH:        /* SPI Flash */   
 			break;
 
 		default:
@@ -41,29 +37,26 @@ DSTATUS disk_status (
 }
 
 /*-----------------------------------------------------------------------*/
-/* Éè±¸³õÊ¼»¯                                                            */
+/* è®¾å¤‡åˆå§‹åŒ–                                                            */
 /*-----------------------------------------------------------------------*/
 DSTATUS disk_initialize (
-	BYTE pdrv				/* ÎïÀí±àºÅ */
+	BYTE pdrv				/* ç‰©ç†ç¼–å· */
 )
 {
-	DSTATUS status = STA_NOINIT;	
+	DSTATUS status = STA_NOINIT;
 	switch (pdrv) {
 		case ATA:	         /* SD CARD */
 			if(SD_Init()==SD_OK)
 			{
 				status &= ~STA_NOINIT;
 			}
-			else 
+			else
 			{
 				status = STA_NOINIT;
 			}
-		
+
 			break;
-    
-		case SPI_FLASH:    /* SPI Flash */ 
-			break;
-      
+
 		default:
 			status = STA_NOINIT;
 	}
@@ -72,30 +65,30 @@ DSTATUS disk_initialize (
 
 
 /*-----------------------------------------------------------------------*/
-/* ¶ÁÉÈÇø£º¶ÁÈ¡ÉÈÇøÄÚÈİµ½Ö¸¶¨´æ´¢Çø                                              */
+/* è¯»æ‰‡åŒºï¼šè¯»å–æ‰‡åŒºå†…å®¹åˆ°æŒ‡å®šå­˜å‚¨åŒº                                              */
 /*-----------------------------------------------------------------------*/
 DRESULT disk_read (
-	BYTE pdrv,		/* Éè±¸ÎïÀí±àºÅ(0..) */
-	BYTE *buff,		/* Êı¾İ»º´æÇø */
-	DWORD sector,	/* ÉÈÇøÊ×µØÖ· */
-	UINT count		/* ÉÈÇø¸öÊı(1..128) */
+	BYTE pdrv,		/* è®¾å¤‡ç‰©ç†ç¼–å·(0..) */
+	BYTE *buff,		/* æ•°æ®ç¼“å­˜åŒº */
+	DWORD sector,	/* æ‰‡åŒºé¦–åœ°å€ */
+	UINT count		/* æ‰‡åŒºä¸ªæ•°(1..128) */
 )
 {
 	DRESULT status = RES_PARERR;
 	SD_Error SD_state = SD_OK;
-	
+
 	switch (pdrv) {
-		case ATA:	/* SD CARD */						
+		case ATA:	/* SD CARD */
 		  if((DWORD)buff&3)
 			{
 				DRESULT res = RES_OK;
 				DWORD scratch[SD_BLOCKSIZE / 4];
 
-				while (count--) 
+				while (count--)
 				{
 					res = disk_read(ATA,(void *)scratch, sector++, 1);
 
-					if (res != RES_OK) 
+					if (res != RES_OK)
 					{
 						break;
 					}
@@ -104,7 +97,7 @@ DRESULT disk_read (
 		    }
 		    return res;
 			}
-			
+
 			SD_state=SD_ReadMultiBlocks(buff,(uint64_t)sector*SD_BLOCKSIZE,SD_BLOCKSIZE,count);
 		  if(SD_state==SD_OK)
 			{
@@ -115,12 +108,9 @@ DRESULT disk_read (
 			if(SD_state!=SD_OK)
 				status = RES_PARERR;
 		  else
-			  status = RES_OK;	
-			break;   
-			
-		case SPI_FLASH:
-		break;
-    
+			  status = RES_OK;
+			break;
+
 		default:
 			status = RES_PARERR;
 	}
@@ -130,43 +120,43 @@ DRESULT disk_read (
 
 
 /*-----------------------------------------------------------------------*/
-/* Ğ´ÉÈÇø£º¼ûÊı¾İĞ´ÈëÖ¸¶¨ÉÈÇø¿Õ¼äÉÏ                                      */
+/* å†™æ‰‡åŒºï¼šæ•°æ®å†™å…¥æŒ‡å®šæ‰‡åŒºç©ºé—´ä¸Š                                      */
 /*-----------------------------------------------------------------------*/
 #if _USE_WRITE
 DRESULT disk_write (
-	BYTE pdrv,			  /* Éè±¸ÎïÀí±àºÅ(0..) */
-	const BYTE *buff,	/* ÓûĞ´ÈëÊı¾İµÄ»º´æÇø */
-	DWORD sector,		  /* ÉÈÇøÊ×µØÖ· */
-	UINT count			  /* ÉÈÇø¸öÊı(1..128) */
+	BYTE pdrv,			  /* è®¾å¤‡ç‰©ç†ç¼–å·(0..) */
+	const BYTE *buff,	/* æ¬²å†™å…¥æ•°æ®çš„ç¼“å­˜åŒº */
+	DWORD sector,		  /* æ‰‡åŒºé¦–åœ°å€ */
+	UINT count			  /* æ‰‡åŒºä¸ªæ•°(1..128) */
 )
 {
 	DRESULT status = RES_PARERR;
 	SD_Error SD_state = SD_OK;
-	
+
 	if (!count) {
 		return RES_PARERR;		/* Check parameter */
 	}
 
 	switch (pdrv) {
-		case ATA:	/* SD CARD */  
+		case ATA:	/* SD CARD */
 			if((DWORD)buff&3)
 			{
 				DRESULT res = RES_OK;
 				DWORD scratch[SD_BLOCKSIZE / 4];
 
-				while (count--) 
+				while (count--)
 				{
 					memcpy( scratch,buff,SD_BLOCKSIZE);
 					res = disk_write(ATA,(void *)scratch, sector++, 1);
-					if (res != RES_OK) 
+					if (res != RES_OK)
 					{
 						break;
-					}					
+					}
 					buff += SD_BLOCKSIZE;
 		    }
 		    return res;
-			}		
-		
+			}
+
 			SD_state=SD_WriteMultiBlocks((uint8_t *)buff,(uint64_t)sector*SD_BLOCKSIZE,SD_BLOCKSIZE,count);
 			if(SD_state==SD_OK)
 			{
@@ -174,17 +164,14 @@ DRESULT disk_write (
 				SD_state=SD_WaitWriteOperation();
 
 				/* Wait until end of DMA transfer */
-				while(SD_GetStatus() != SD_TRANSFER_OK);			
+				while(SD_GetStatus() != SD_TRANSFER_OK);
 			}
 			if(SD_state!=SD_OK)
 				status = RES_PARERR;
 		  else
-			  status = RES_OK;	
+			  status = RES_OK;
 		break;
 
-		case SPI_FLASH:
-		break;
-    
 		default:
 			status = RES_PARERR;
 	}
@@ -194,27 +181,27 @@ DRESULT disk_write (
 
 
 /*-----------------------------------------------------------------------*/
-/* ÆäËû¿ØÖÆ                                                              */
+/* å…¶ä»–æ§åˆ¶                                                              */
 /*-----------------------------------------------------------------------*/
 
 #if _USE_IOCTL
 DRESULT disk_ioctl (
-	BYTE pdrv,		/* ÎïÀí±àºÅ */
-	BYTE cmd,		  /* ¿ØÖÆÖ¸Áî */
-	void *buff		/* Ğ´Èë»òÕß¶ÁÈ¡Êı¾İµØÖ·Ö¸Õë */
+	BYTE pdrv,		/* ç‰©ç†ç¼–å· */
+	BYTE cmd,		  /* æ§åˆ¶æŒ‡ä»¤ */
+	void *buff		/* å†™å…¥æˆ–è€…è¯»å–æ•°æ®åœ°å€æŒ‡é’ˆ */
 )
 {
 	DRESULT status = RES_PARERR;
 	switch (pdrv) {
 		case ATA:	/* SD CARD */
-			switch (cmd) 
+			switch (cmd)
 			{
-				// Get R/W sector size (WORD) 
-				case GET_SECTOR_SIZE :    
+				// Get R/W sector size (WORD)
+				case GET_SECTOR_SIZE :
 					*(WORD * )buff = SD_BLOCKSIZE;
 				break;
 				// Get erase block size in unit of sector (DWORD)
-				case GET_BLOCK_SIZE :      
+				case GET_BLOCK_SIZE :
 					*(DWORD * )buff = 1;
 				break;
 
@@ -226,25 +213,11 @@ DRESULT disk_ioctl (
 			}
 			status = RES_OK;
 			break;
-    
-		case SPI_FLASH:		      
-		break;
-    
+
 		default:
 			status = RES_PARERR;
 	}
 	return status;
 }
 #endif
-
-							 
-__weak DWORD get_fattime(void) {
-	/* ·µ»Øµ±Ç°Ê±¼ä´Á */
-	return	  ((DWORD)(2015 - 1980) << 25)	/* Year 2015 */
-			| ((DWORD)1 << 21)				/* Month 1 */
-			| ((DWORD)1 << 16)				/* Mday 1 */
-			| ((DWORD)0 << 11)				/* Hour 0 */
-			| ((DWORD)0 << 5)				  /* Min 0 */
-			| ((DWORD)0 >> 1);				/* Sec 0 */
-}
 
