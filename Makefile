@@ -41,7 +41,9 @@ User/src/gui.c \
 User/src/delay.c \
 User/src/stm32f10x_it.c \
 User/src/ili9341.c \
-User/src/bsp_led.c
+User/src/bsp_led.c \
+User/src/bsp_adc.c \
+User/src/bsp_dac.c
 
 STDPERIPH_SOURCES =  \
 Libraries/CMSIS/system_stm32f10x.c \

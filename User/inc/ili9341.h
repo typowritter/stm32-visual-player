@@ -25,8 +25,8 @@
 #define MOSI_PORT           GPIOA
 #define MOSI_PIN            GPIO_Pin_7
 #define RES_PORT            GPIOC
-#define RES_PIN             GPIO_Pin_13
-#define DC_PORT             GPIOA
+#define RES_PIN             GPIO_Pin_7
+#define DC_PORT             GPIOC
 #define DC_PIN              GPIO_Pin_6
 #if SOFT_SELECT
 #define CS_PORT             GPIOC

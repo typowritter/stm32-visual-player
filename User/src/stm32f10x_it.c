@@ -25,8 +25,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h"
+#include "bsp_adc.h"
 
-// extern __IO uint32_t time_tick;
+extern __IO uint16_t ADC_ConvertedValue;
 
 /** @addtogroup STM32F10x_StdPeriph_Template
   * @{
@@ -138,6 +139,17 @@ void PendSV_Handler(void)
   */
 void SysTick_Handler(void)
 {
+}
+
+void ADC_IRQHandler(void)
+{
+
+    if (SET == ADC_GetITStatus(ADC_x, ADC_IT_EOC))
+    {
+        ADC_ConvertedValue = ADC_GetConversionValue(ADC_x);
+    }
+
+    ADC_ClearITPendingBit(ADC_x, ADC_IT_EOC);
 }
 
 // void BASIC_TIM_IRQHandler(void)

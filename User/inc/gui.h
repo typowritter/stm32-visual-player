@@ -22,7 +22,7 @@
 #define GRAPH_WIDTH             (GRAPH_END_X - GRAPH_START_X)
 #define GRAPH_HEIGHT            (GRAPH_END_Y - GRAPH_START_Y)
 
-#define LABEL1_START_X+
+#define LABEL1_START_X
 #define LABEL1_START_Y
 
 

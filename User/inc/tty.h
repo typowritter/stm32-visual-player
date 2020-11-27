@@ -69,7 +69,7 @@ extern char STRBUF[READSTR_MAX_BUFSIZE];
 // #define  DEBUG_USART_APBxClkCmd         RCC_APB1PeriphClockCmd
 // #define  DEBUG_USART_BAUDRATE           115200
 
-// USART GPIO
+// // USART GPIO
 // #define  DEBUG_USART_GPIO_CLK           (RCC_APB2Periph_GPIOA)
 // #define  DEBUG_USART_GPIO_APBxClkCmd    RCC_APB2PeriphClockCmd
 
@@ -89,7 +89,7 @@ extern char STRBUF[READSTR_MAX_BUFSIZE];
 // #define  DEBUG_USART_APBxClkCmd         RCC_APB1PeriphClockCmd
 // #define  DEBUG_USART_BAUDRATE           115200
 
-// USART GPIO
+// // USART GPIO
 // #define  DEBUG_USART_GPIO_CLK           (RCC_APB2Periph_GPIOB)
 // #define  DEBUG_USART_GPIO_APBxClkCmd    RCC_APB2PeriphClockCmd
 
