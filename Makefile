@@ -43,8 +43,8 @@ User/src/stm32f10x_it.c \
 User/src/ili9341.c \
 User/src/bsp_led.c \
 User/src/bsp_adc.c \
-User/src/bsp_dac.c \
 User/src/bsp_sdio_sdcard.c\
+User/src/player.c \
 User/src/fatfs/ff.c \
 User/src/fatfs/diskio.c
 
