@@ -11,11 +11,6 @@
 #include "ili9341.h"
 #include <stdio.h>
 
-#ifdef DEBUG
-#include "tty.h"
-static void serial_send();
-#endif
-
 void GUI_Init(void)
 {
     char textBuffer[2];

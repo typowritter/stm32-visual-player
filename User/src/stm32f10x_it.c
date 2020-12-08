@@ -25,10 +25,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h"
-#include "bsp_adc.h"
 #include "bsp_sdio_sdcard.h"
-
-extern __IO uint16_t ADC_ConvertedValue;
 
 /** @addtogroup STM32F10x_StdPeriph_Template
   * @{
@@ -142,16 +139,6 @@ void SysTick_Handler(void)
 {
 }
 
-void ADC_IRQHandler(void)
-{
-
-    if (SET == ADC_GetITStatus(ADC_x, ADC_IT_EOC))
-    {
-        ADC_ConvertedValue = ADC_GetConversionValue(ADC_x);
-    }
-
-    ADC_ClearITPendingBit(ADC_x, ADC_IT_EOC);
-}
 
 void SDIO_IRQHandler(void)
 {
