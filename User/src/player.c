@@ -82,6 +82,9 @@ void player_pause(void)
 
 void player_stop(void)
 {
+    player_statu = PAUSED;
+    DAC_Cmd(DAC_Channel_1, DISABLE);
+    BASIC_TIM_APBxClock_FUN(BASIC_TIM_CLK, DISABLE);
 }
 
 void player_resume(void)
@@ -107,7 +110,7 @@ void BASIC_TIM_IRQHandler(void)
     TIM_ClearITPendingBit(BASIC_TIM , TIM_IT_Update);
 }
 
-void player_trigger(void)
+void player_update(void)
 {
     if (player_statu == PLAYING)
     {

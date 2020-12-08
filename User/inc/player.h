@@ -18,7 +18,11 @@ typedef enum
 
 void player_init(void);
 void player_start(void);
-void player_trigger(void);
+void player_pause(void);
+void player_stop(void);
+void player_resume(void);
+void player_update(void);
+PlayerStatu get_statu(void);
 
 
 #endif /* __PLAYER_H */

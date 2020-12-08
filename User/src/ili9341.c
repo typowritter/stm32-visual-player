@@ -224,6 +224,23 @@ void draw_line(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
     }
 }
 
+void draw_rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint8_t filled)
+{
+    if (filled)
+    {
+        open_window(x, y, w, h);
+        fill_window((uint32_t)w * h, foreColor);
+    }
+    else
+    {
+        draw_line(x, y, x+w-1, y);
+        draw_line(x, y+h-1, x+w-1, y+h-1);
+        draw_line(x, y, x, y+h-1);
+        draw_line(x+w-1, y, x+w-1, y+h-1);
+    }
+}
+
+
 static inline void fill_screen()
 {
     clear_region(0, 0, x_Max, y_Max);

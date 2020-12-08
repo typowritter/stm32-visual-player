@@ -10,10 +10,18 @@
 #include "gui.h"
 #include "ili9341.h"
 #include <stdio.h>
+#include <string.h>
+
+static uint8_t label_artist [25];
+static uint8_t label_title  [25];
+static uint8_t label_period [16];
+
+static draw_button(uint8_t text[], uint16_t x, uint16_t y);
+
 
 void GUI_Init(void)
 {
-    char textBuffer[2];
+    uint8_t btn_strbuf[8];
 
     // 描绘图像边界
     set_foreColor(TEXT_COLOR);
@@ -27,6 +35,47 @@ void GUI_Init(void)
               GRAPH_END_Y,
               GRAPH_END_X,
               GRAPH_END_Y);
+
+    // 描绘标签
+    sprintf(label_artist, "Artist: ak+q");
+    sprintf(label_title,  "Title : ikasu");
+    sprintf(label_period, "01:21 | 03:09");
+    disp_string(LABEL_ARTIST_X, LABEL_ARTIST_Y, label_artist);
+    disp_string(LABEL_TITLE_X,  LABEL_TITLE_Y,  label_title);
+    disp_string(LABEL_PERIOD_X, LABEL_PERIOD_Y, label_period);
+
+    /* 描绘按钮 */
+
+    set_foreColor(GRAY1);
+    draw_button("Prev",
+                BUTTON_START_X, BUTTON_START_Y);
+    draw_button("P/R",
+                BUTTON_START_X + (BUTTON_WIDTH+BUTTON_GAP), BUTTON_START_Y);
+    draw_button("Next",
+                BUTTON_START_X + (BUTTON_WIDTH+BUTTON_GAP)*2, BUTTON_START_Y);
+    // draw_button("EQ", BUTTON_EQ_X, BUTTON_EQ_Y);
+
+}
+
+static draw_button(uint8_t text[], uint16_t x, uint16_t y)
+{
+    uint16_t w = BUTTON_WIDTH;
+    uint16_t h = BUTTON_HEIGHT;
+    // 按钮内部
+    set_foreColor(SILVER);
+    draw_rect(x, y, w, h, 1);
+
+    // 按钮边框
+    set_foreColor(BLUE);
+    draw_rect(x, y, w, h, 0);
+
+    // 按钮文字
+    set_foreColor(TEXT_COLOR);
+    set_backColor(SILVER);
+    disp_string(x + (w - strlen(text)*FONT_W)/2,
+                y + (h - FONT_H)/2,
+                text);
+
 }
 
 static void update_msg(void)
@@ -56,7 +105,7 @@ static void clear_graph(void)
 
 }
 
-static void plot_graph(uint16_t buffer[], GraphTypeEnm graphType)
+static void plot_graph(uint16_t buffer[])
 {
     // uint16_t *pt = buffer;
     // uint16_t pt_x, pt_y;
@@ -179,23 +228,4 @@ static void switch_mode()
 
     // if (!AutoMode)
     //     start_sampling();
-}
-
-
-void BASIC_TIM_IRQHandler(void)
-{
-    // if ( TIM_GetITStatus( BASIC_TIM, TIM_IT_Update) != RESET )
-    // {
-    //     TIM_ClearITPendingBit(BASIC_TIM , TIM_FLAG_Update);
-    //     if (AutoMode)
-    //     {
-    //         time_tick++;
-    //         if (time_tick > 1000)
-    //         {
-    //             start_sampling();
-    //             time_tick = 0;
-    //         }
-    //     }
-
-    // }
 }

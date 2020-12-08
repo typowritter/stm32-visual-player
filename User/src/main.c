@@ -31,7 +31,7 @@ int main(void)
                 player_pause():
                 player_resume();
         }
-        player_trigger();
+        // player_update();
         // delay_us(125);
         // tty_print("%s\r\n", strbuf);
     }
