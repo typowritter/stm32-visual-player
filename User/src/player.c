@@ -5,10 +5,11 @@
 #include "bsp_led.h"
 #include "bsp_tim.h"
 
+typedef uint16_t    Sample_t;
 #define POINTS_NUM  256
-#define READ_SIZE   (2*POINTS_NUM)
+#define READ_SIZE   (sizeof(Sample_t)*POINTS_NUM)
 
-__IO uint16_t AudioBuffer[POINTS_NUM];
+__IO Sample_t AudioBuffer[POINTS_NUM];
 
 FATFS fs;           /* FatFs文件系统对象 */
 FIL file_mu;        /* 文件对象 */
@@ -35,7 +36,7 @@ void player_init(void)
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-    BASIC_TIM_Init();
+    TIM_Init();
 
     /* File system */
     f_mount(&fs, "0:", 1);
@@ -58,7 +59,8 @@ static void media_parse(void)
     f_open(&file_mu, "0:ikasu16.mu", FA_OPEN_EXISTING | FA_READ);
     f_read(&file_mu, Artist,  sizeof(Artist), &fnum);
     f_read(&file_mu, Title,   sizeof(Title),  &fnum);
-    f_read(&file_mu, &Chunks, sizeof(uint16_t), &fnum);
+    // f_read(&file_mu, &Chunks, sizeof(uint16_t), &fnum);
+    Chunks = 0x1722;
 }
 
 void player_start(void)
@@ -71,8 +73,8 @@ void player_start(void)
     DAC_Config();
     DAC_Cmd(DAC_Channel_1, ENABLE);
 
-    BASIC_TIM_APBxClock_FUN(BASIC_TIM_CLK, ENABLE);
-    player_resume();
+    TIM_APBxClock(UPDATE_TIM_CLK, ENABLE);
+    player_statu = PLAYING;
 }
 
 void player_pause(void)
@@ -84,7 +86,7 @@ void player_stop(void)
 {
     player_statu = PAUSED;
     DAC_Cmd(DAC_Channel_1, DISABLE);
-    BASIC_TIM_APBxClock_FUN(BASIC_TIM_CLK, DISABLE);
+    TIM_APBxClock(UPDATE_TIM_CLK, DISABLE);
 }
 
 void player_resume(void)
@@ -97,7 +99,7 @@ PlayerStatu get_statu(void)
     return player_statu;
 }
 
-void BASIC_TIM_IRQHandler(void)
+void UPDATE_TIM_IRQHandler(void)
 {
     if (player_statu == PLAYING)
     {
@@ -107,22 +109,22 @@ void BASIC_TIM_IRQHandler(void)
     }
 
     // 清除中断标志位
-    TIM_ClearITPendingBit(BASIC_TIM , TIM_IT_Update);
+    TIM_ClearITPendingBit(UPDATE_TIM , TIM_IT_Update);
 }
 
-void player_update(void)
+void check_reload(void)
 {
     if (player_statu == PLAYING)
     {
+        if (Chunks == 0)
+        {
+            player_stop();
+        }
         // 最后一个采样播放完成时，上溢至 0
-        if (wavecounter == 0)
+        else if (wavecounter == 0)
         {
             f_read(&file_mu, AudioBuffer, READ_SIZE, &fnum);
             Chunks--;
-        }
-        else if (Chunks == 0)
-        {
-            player_stop();
         }
     }
 }
