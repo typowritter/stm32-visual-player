@@ -1,15 +1,144 @@
 #include "player.h"
 #include "bsp_sdio_sdcard.h"
 #include "ff.h"
-#include "tty.h"
+// #include "tty.h"
 #include "bsp_led.h"
-#include "bsp_tim.h"
 
 typedef uint16_t    Sample_t;
-#define POINTS_NUM  256
+#define POINTS_NUM  1024
 #define READ_SIZE   (sizeof(Sample_t)*POINTS_NUM)
 
 __IO Sample_t AudioBuffer[POINTS_NUM];
+// __IO Sample_t AudioBuffer[POINTS_NUM] = {
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+//     2048    , 2460  , 2856  , 3218  , 3532  , 3786  , 3969  , 4072  ,
+//     4093    , 4031  , 3887  , 3668  , 3382  , 3042  ,   2661    , 2255  ,
+//     1841    , 1435  , 1054  , 714       , 428       , 209       , 65        , 3         ,
+//     24      , 127       , 310       , 564       , 878       , 1240  , 1636  , 2048,
+// };
 
 FATFS fs;           /* FatFs文件系统对象 */
 FIL file_mu;        /* 文件对象 */
@@ -20,13 +149,16 @@ uint8_t  Artist [16];
 uint8_t  Title  [16];
 uint16_t Chunks;
 
+uint8_t flag_UpdateHalf_1 = 0;
+uint8_t flag_UpdateHalf_2 = 0;
 uint8_t wavecounter = 0;
 uint16_t wave_sec   = 0;
-PlayerStatu player_statu = PAUSED;
+PlayerStatu_t PlayerStatu = PAUSED;
 
 void player_init(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
+    NVIC_InitTypeDef NVIC_InitStructure;
 
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
 
@@ -36,10 +168,68 @@ void player_init(void)
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-    TIM_Init();
+    /* DMA 中断配置 */
+    // 设置中断来源
+    NVIC_InitStructure.NVIC_IRQChannel = DMA2_Channel3_IRQn;
+    // 设置主优先级为 0
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+    // 设置抢占优先级为3
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
 
     /* File system */
     f_mount(&fs, "0:", 1);
+}
+
+static void DAC_DMA_Config(void)
+{
+    DMA_InitTypeDef DMA_InitStructure;
+
+    /* 使能DMA2时钟 */
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA2, ENABLE);
+
+    DMA_ClearFlag(DMA2_FLAG_TC3 | DMA2_FLAG_HT3 | DMA2_FLAG_GL3 | DMA2_FLAG_TE3);
+    DMA_Cmd(DMA2_Channel3, DISABLE);
+
+    /* 配置DMA2 */
+    DMA_InitStructure.DMA_PeripheralBaseAddr = DAC_DHR12R1_ADDR;                   //外设数据地址
+    DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)&AudioBuffer;             //内存数据地址 AudioBuffer
+    DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;                          //数据传输方向内存至外设
+    DMA_InitStructure.DMA_BufferSize = POINTS_NUM;                              //缓存大小为POINTS_NUM字节
+    DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;              //外设数据地址固定
+    DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;                  //内存数据地址自增
+    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;   //外设数据以字为单位
+    DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;               //内存数据以字为单位
+    DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;                                     //单次传输模式
+    DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;                    //高DMA通道优先级
+    DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;                      //非内存至内存模式
+    DMA_Init(DMA2_Channel3, &DMA_InitStructure);
+
+    DMA_ITConfig(DMA2_Channel3,
+        DMA_IT_HT | DMA_IT_TC, ENABLE);
+
+    /* 使能DMA通道 */
+    DMA_Cmd(DMA2_Channel3, ENABLE);
+}
+
+static void DAC_TIM_Config(void)
+{
+    TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
+
+    /* 使能TIM6时钟，TIM6CLK 为72M */
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM6, ENABLE);
+
+    TIM_DeInit(TIM6);
+
+    /* TIM6基本定时器配置 */
+    // TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
+    TIM_TimeBaseStructure.TIM_Period = 125;           // 定时周期 125
+    TIM_TimeBaseStructure.TIM_Prescaler = (72-1);     // 预分频，72M / (72) = 1M
+    TIM_TimeBaseInit(TIM6, &TIM_TimeBaseStructure);
+
+    /* 配置TIM6触发源 */
+    TIM_SelectOutputTrigger(TIM6, TIM_TRGOSource_Update);
 }
 
 static void DAC_Config(void)
@@ -48,10 +238,15 @@ static void DAC_Config(void)
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC, ENABLE);
 
     /* DAC 通道1 */
-    DAC_InitStructure.DAC_Trigger = DAC_Trigger_Software;
+    DAC_InitStructure.DAC_Trigger = DAC_Trigger_T6_TRGO;
     DAC_InitStructure.DAC_WaveGeneration = DAC_WaveGeneration_None;
     DAC_InitStructure.DAC_OutputBuffer = DAC_OutputBuffer_Enable;
     DAC_Init(DAC_Channel_1, &DAC_InitStructure);
+
+    DAC_Cmd(DAC_Channel_1, ENABLE);
+
+    /* 使能DAC的DMA请求 */
+    DAC_DMACmd(DAC_Channel_1, ENABLE);
 }
 
 static void media_parse(void)
@@ -59,72 +254,123 @@ static void media_parse(void)
     f_open(&file_mu, "0:ikasu16.mu", FA_OPEN_EXISTING | FA_READ);
     f_read(&file_mu, Artist,  sizeof(Artist), &fnum);
     f_read(&file_mu, Title,   sizeof(Title),  &fnum);
-    // f_read(&file_mu, &Chunks, sizeof(uint16_t), &fnum);
+    f_read(&file_mu, &Chunks, sizeof(uint16_t), &fnum);
+    f_read(&file_mu, AudioBuffer, READ_SIZE/2, &fnum);
     Chunks = 0x1722;
 }
 
 void player_start(void)
 {
     media_parse();
-    f_read(&file_mu, AudioBuffer, READ_SIZE, &fnum);
 
     wave_sec = Chunks / SAMPLE_RATE * POINTS_NUM;
 
     DAC_Config();
-    DAC_Cmd(DAC_Channel_1, ENABLE);
+    DAC_TIM_Config();
+    DAC_DMA_Config();
 
-    TIM_APBxClock(UPDATE_TIM_CLK, ENABLE);
-    player_statu = PLAYING;
+    /* 使能DAC、TIM6 */
+    TIM_Cmd(TIM6, ENABLE);
+
+    PlayerStatu = PLAYING;
 }
 
 void player_pause(void)
 {
-    player_statu = PAUSED;
+    PlayerStatu = PAUSED;
 }
 
 void player_stop(void)
 {
-    player_statu = PAUSED;
+    PlayerStatu = PAUSED;
     DAC_Cmd(DAC_Channel_1, DISABLE);
-    TIM_APBxClock(UPDATE_TIM_CLK, DISABLE);
+    // TIM_APBxClock(UPDATE_TIM_CLK, DISABLE);
 }
 
 void player_resume(void)
 {
-    player_statu = PLAYING;
+    PlayerStatu = PLAYING;
+    DAC_DMA_Config();
 }
 
-PlayerStatu get_statu(void)
+PlayerStatu_t get_statu(void)
 {
-    return player_statu;
+    return PlayerStatu;
 }
 
-void UPDATE_TIM_IRQHandler(void)
+// void DMA2_Channel3_IRQHandler(void)
+// {
+//     LED_YELLOW();
+//     if (DMA_GetITStatus(DMA2_IT_HT3) != RESET)
+//     {
+//         LED_RED();
+//         f_read(&file_mu, AudioBuffer, READ_SIZE/2, &fnum);
+//     }
+//     else
+//     {
+//         LED_BLUE();
+//         if (PlayerStatu == PLAYING)
+//             DAC_DMA_Config();
+//     }
+//     DMA_ClearITPendingBit(DMA2_IT_GL3);
+// }
+
+// // void UPDATE_TIM_IRQHandler(void)
+// // {
+// //     if (PlayerStatu == PLAYING)
+// //     {
+// //         // 将音频数据送到 DAC
+// //         DAC_SetChannel1Data(DAC_Align_12b_R, AudioBuffer[wavecounter++]);
+// //         DAC_SoftwareTriggerCmd(DAC_Channel_1, ENABLE);  // 触发 DAC 转换
+// //     }
+
+// //     // 清除中断标志位
+// //     TIM_ClearITPendingBit(UPDATE_TIM , TIM_IT_Update);
+// // }
+
+// void check_reload(void)
+// {
+//     if (PlayerStatu == PLAYING)
+//     {
+//         if (Chunks == 0)
+//         {
+//             player_stop();
+//         }
+//         // 最后一个采样播放完成时，上溢至 0
+//         // else if (wavecounter == 0)
+//         else if (DMA_GetITStatus(DMA2_IT_TC3) != RESET)
+//         {
+//             LED_YELLOW();
+//             f_read(&file_mu, AudioBuffer, READ_SIZE, &fnum);
+//             Chunks--;
+//             DMA_ClearITPendingBit(DMA2_IT_GL3);
+//         }
+//     }
+// }
+
+void update_half_1()
 {
-    if (player_statu == PLAYING)
+    f_read(&file_mu, AudioBuffer, READ_SIZE/2, &fnum);
+}
+
+void update_half_2()
+{
+    f_read(&file_mu, &AudioBuffer[POINTS_NUM/2], READ_SIZE/2, &fnum);
+}
+
+
+void DMA2_Channel3_IRQHandler(void)
+{
+    if (DMA_GetITStatus(DMA2_IT_HT3) != RESET)
     {
-        // 将音频数据送到 DAC
-        DAC_SetChannel1Data(DAC_Align_12b_R, AudioBuffer[wavecounter++]);
-        DAC_SoftwareTriggerCmd(DAC_Channel_1, ENABLE);  // 触发 DAC 转换
+        flag_UpdateHalf_1 = 1;
     }
-
-    // 清除中断标志位
-    TIM_ClearITPendingBit(UPDATE_TIM , TIM_IT_Update);
-}
-
-void check_reload(void)
-{
-    if (player_statu == PLAYING)
+    else
     {
-        if (Chunks == 0)
-        {
-            player_stop();
-        }
-        // 最后一个采样播放完成时，上溢至 0
-        else if (wavecounter == 0)
-        {
-            f_read(&file_mu, AudioBuffer, READ_SIZE, &fnum);
-            Chunks--;
-        }
+        flag_UpdateHalf_2 = 1;
+        PlayerStatu == PLAYING?
+            DAC_DMA_Config():
+            0;
     }
+    DMA_ClearITPendingBit(DMA2_IT_GL3);
 }

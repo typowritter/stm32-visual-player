@@ -14,7 +14,10 @@ typedef enum
 {
   PLAYING,
   PAUSED
-} PlayerStatu;
+} PlayerStatu_t;
+
+extern uint8_t flag_UpdateHalf_1;
+extern uint8_t flag_UpdateHalf_2;
 
 void player_init(void);
 void player_start(void);
@@ -22,7 +25,7 @@ void player_pause(void);
 void player_stop(void);
 void player_resume(void);
 void check_reload(void);
-PlayerStatu get_statu(void);
+PlayerStatu_t get_statu(void);
 
 
 #endif /* __PLAYER_H */

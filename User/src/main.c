@@ -16,6 +16,7 @@ int main(void)
 {
     delay_init();
     Key_GPIO_Config();
+    LED_GPIO_Config();
     tty_init();
     player_init();
 
@@ -31,7 +32,18 @@ int main(void)
                 player_pause():
                 player_resume();
         }
-        check_reload();
+        if (flag_UpdateHalf_1)
+        {
+            update_half_1();
+            flag_UpdateHalf_1 = 0;
+        }
+        else if (flag_UpdateHalf_2)
+        {
+            update_half_2();
+            flag_UpdateHalf_2 = 0;
+        }
+
+        // check_reload();
         // delay_us(125);
         // tty_print("%s\r\n", strbuf);
     }
