@@ -9,7 +9,8 @@
 #include "tty.h"
 #endif
 
-uint32_t cnt = 0;
+uint8_t graph_update_interval;
+uint8_t disp_update_interval;
 uint8_t strbuf[20];
 
 int main(void)
@@ -32,16 +33,33 @@ int main(void)
                 player_pause():
                 player_resume();
         }
+
         if (flag_UpdateHalf_1)
         {
             update_half_1();
             flag_UpdateHalf_1 = 0;
+            if (graph_update_interval > 1)
+            {
+                plot_graph();
+                graph_update_interval = 0;
+            }
+
+            if (disp_update_interval > 5)
+            {
+                update_msg();
+                disp_update_interval = 0;
+            }
+
         }
         else if (flag_UpdateHalf_2)
         {
             update_half_2();
             flag_UpdateHalf_2 = 0;
+            graph_update_interval++;
+            disp_update_interval++;
         }
+
+
 
         // check_reload();
         // delay_us(125);

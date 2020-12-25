@@ -161,7 +161,7 @@ static void fill_window(uint32_t pointCnt, uint16_t color)
 void clear_region(uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
     open_window(x, y, w, h);
-    fill_window((uint32_t)w * h, backColor);
+    fill_window((uint32_t)w * h, WHITE);
 }
 
 // Bresenham algorithm

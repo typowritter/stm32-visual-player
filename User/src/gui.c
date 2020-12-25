@@ -12,9 +12,19 @@
 #include <stdio.h>
 #include <string.h>
 
+extern __IO uint16_t AudioBuffer[];
+extern uint16_t Chunks;
+
 static uint8_t label_artist [25];
 static uint8_t label_title  [25];
 static uint8_t label_period [16];
+
+static uint16_t sec_elap;
+__IO   uint16_t sec_total;
+
+static uint16_t raw_buffer[FFT_SIZE];
+static int16_t  fft_buffer[FFT_SIZE * 2];
+static uint16_t mag_buffer[FFT_SIZE];
 
 static draw_button(uint8_t text[], uint16_t x, uint16_t y);
 
@@ -39,7 +49,7 @@ void GUI_Init(void)
     // 描绘标签
     sprintf(label_artist, "Artist: ak+q");
     sprintf(label_title,  "Title : ikasu");
-    sprintf(label_period, "01:21 | 03:09");
+    sprintf(label_period, "00:00 | 00:00");
     disp_string(LABEL_ARTIST_X, LABEL_ARTIST_Y, label_artist);
     disp_string(LABEL_TITLE_X,  LABEL_TITLE_Y,  label_title);
     disp_string(LABEL_PERIOD_X, LABEL_PERIOD_Y, label_period);
@@ -54,7 +64,6 @@ void GUI_Init(void)
     draw_button("Next",
                 BUTTON_START_X + (BUTTON_WIDTH+BUTTON_GAP)*2, BUTTON_START_Y);
     // draw_button("EQ", BUTTON_EQ_X, BUTTON_EQ_Y);
-
 }
 
 static draw_button(uint8_t text[], uint16_t x, uint16_t y)
@@ -78,154 +87,85 @@ static draw_button(uint8_t text[], uint16_t x, uint16_t y)
 
 }
 
-static void update_msg(void)
+void update_msg(void)
 {
-    // LCD_SetBackColor(CL_WHITE);
-    // ILI9341_Clear(LABEL1_START_X, LABEL1_START_Y, LCD_X_LENGTH, 4*HEIGHT_CH_CHAR);
+    sec_elap = sec_total - Chunks*0.032;
+    sprintf(label_period, "%02d:%02d | %02d:%02d",
+        sec_elap/60, sec_elap%60,
+        sec_total/60, sec_total%60);
 
-    // // 文字信息
-    // LCD_SetFont(&Font8x16);
-    // LCD_SetTextColor(CL_RED);
+    clear_region(LABEL_PERIOD_X, LABEL_PERIOD_Y,
+        FONT_W*12, FONT_H);
 
-    // ILI9341_DispString_EN(LABEL1_START_X, LABEL1_START_Y, labelMode);
-    // ILI9341_DispString_EN(LABEL2_START_X, LABEL2_START_Y, labelTHD);
-    // ILI9341_DispString_EN(LABEL3_START_X, LABEL3_START_Y, labelVpp);
-    // ILI9341_DispString_EN(LABEL4_START_X, LABEL4_START_Y, labelFreq);
+    set_foreColor(TEXT_COLOR);
+    set_backColor(WHITE);
+    disp_string(LABEL_PERIOD_X, LABEL_PERIOD_Y, label_period);
 }
 
-#ifdef DEBUG
-static void serial_send()
+void plot_graph()
 {
+    clear_region(GRAPH_START_X+17, GRAPH_START_Y+1,
+        GRAPH_WIDTH-33, GRAPH_HEIGHT-2);
 
-}
-#endif
+    // arm_rfft_q15(&arm_rfft_sR_q15_len256, raw_buffer, fft_buffer);
+    // arm_cmplx_mag_q15(fft_buffer, mag_buffer, FFT_SIZE);
 
-static void clear_graph(void)
-{
+    // int16_t real, imag;
+    // int16_t *pSrc = fft_buffer;
+    // uint16_t *pDst = mag_buffer;
+    // int32_t acc0, acc1;
+    // uint16_t numSamples = FFT_SIZE/2;
 
-}
+    // while (numSamples > 0)
+    // {
+    //     /* out = sqrt(real * real + imag * imag) */
+    //     real = *pSrc++;
+    //     imag = *pSrc++;
 
-static void plot_graph(uint16_t buffer[])
-{
-    // uint16_t *pt = buffer;
-    // uint16_t pt_x, pt_y;
+    //     acc0 = (real * real);
+    //     acc1 = (imag * imag);
+
+    //     // arm_sqrt_q15((int16_t) (((int64_t) acc0 + acc1) >> 17), pDst++);
+    //     *pDst = sqrt((float)(acc0 + acc1));
+    //     pDst++;
+
+    //     numSamples--;
+    // }
+
+    uint16_t *pt = AudioBuffer;
+    uint16_t pt_x, pt_y;
     // uint16_t prev_x, prev_y;
-    // uint16_t linecolor;
-    // uint16_t x_scalar;
-    // float y_scalar;
 
-    // if (graphType == TIME_DOMAIN)
+    // prev_x = pt_x = GRAPH_START_X+17;
+    // prev_y = pt_y = GRAPH_END_Y - ((*pt/4096.0) * GRAPH_HEIGHT) - 1 + (GRAPH_HEIGHT/2);
+    // set_foreColor(GRAPH_COLOR);
+    // for (uint16_t i = 0; i < 64; i++)
     // {
-    //     x_scalar = 1;
-    //     y_scalar = (float)ADC_RANGE;
-    //     linecolor = CH1_COLOR;
-    // }
-    // else
-    // {
-    //     x_scalar = FFT_SIZE/1024;
-    //     y_scalar = 500.0f;  // 经验值
-    //     linecolor = CH2_COLOR;
-    // }
+    //     pt += 4;
+    //     pt_x += 4;
+    //     pt_y = GRAPH_END_Y - ((*pt/4096.0) * GRAPH_HEIGHT) - 1 + (GRAPH_HEIGHT/2);
 
-    // LCD_SetTextColor(linecolor);
-    // prev_x = pt_x = GRAPH_START_X;
-    // prev_y = LCD_Y_LENGTH - ((*pt/y_scalar)*GRAPH_HEIGHT + GRAPH_BOTTOM + 1);
-    // if (prev_y <= GRAPH_START_Y)
-    //     prev_y = GRAPH_START_Y + 1;
+    //     if (pt_y >= GRAPH_END_Y)
+    //         pt_y = GRAPH_END_Y*2 - pt_y;
 
-    // for (uint16_t i = 1; pt_x<=GRAPH_END_X && i<ADC_BUFFER_SIZE; i++)
-    // {
-    //     // 保证画FFT图像时不会跳过峰值点
-    //     if (graphType == FREQ_DOMAIN)
-    //     {
-    //         uint16_t j;
-    //         for (j = 1; j < x_scalar; j++)
-    //             if (*(pt+j) > MAG_LOWER_THRESH) break;
+    //     draw_line(prev_x, prev_y,
+    //         pt_x, pt_y);
 
-    //         pt += j;
-    //     }
-    //     else
-    //     {
-    //         pt += x_scalar;
-    //     }
-
-    //     pt_x++;
-    //     pt_y = LCD_Y_LENGTH - ((*pt/y_scalar)*GRAPH_HEIGHT + GRAPH_BOTTOM + 1);
-    //     if (pt_y <= GRAPH_START_Y)
-    //         pt_y = GRAPH_START_Y + 1;
-
-    //     // ILI9341_SetPointPixel(pt_x, pt_y);
-    //     ILI9341_DrawLine(prev_x, prev_y, pt_x, pt_y);
     //     prev_x = pt_x;
     //     prev_y = pt_y;
     // }
-}
 
+    pt_x = GRAPH_START_X+17;
+    set_foreColor(GRAPH_COLOR);
+    for (uint16_t i = 0; i < 64; i++)
+    {
+        pt_y = GRAPH_END_Y - ((*pt/4096.0) * GRAPH_HEIGHT) - 1 + (GRAPH_HEIGHT/2);
+        if (pt_y >= GRAPH_END_Y)
+            pt_y = GRAPH_END_Y*2 - pt_y;
 
-static void start_sampling(void)
-{
-    // ADCx_Mode_Config();
-    // ADC_SoftwareStartConvCmd(ADC_x, ENABLE);
+        draw_rect(pt_x, pt_y, 4, GRAPH_END_Y-pt_y, 1);
 
-    // while (DMA_GetFlagStatus(ADC_DMA_FLAG_TC) != SET);
-    // DMA_ClearFlag(ADC_DMA_FLAG_TC);
-
-    // clear_graph();
-    // plot_graph(ADC_Buffer, TIME_DOMAIN);
-
-    // // FFT会改变ADC_Buffer，所以要先把时域图画好
-    // calculate_params();
-    // plot_graph(FFT_MagBuffer, FREQ_DOMAIN);
-    // update_msg();
-
-}
-
-static void calculate_params(void)
-{
-    // // Vpp
-    // float vpp = vpp_q15(ADC_Buffer);
-    // sprintf(labelVpp, "Vpp = %.3fV", vpp);
-
-    // // THD
-    // float THD = 0.00f;
-    // for (uint16_t i = 0; i < FFT_REPEAT; i++)
-    // {
-    //     fft_q15(ADC_Buffer + i*FFT_SIZE, FFT_Buffer);
-    //     mag_q15(FFT_Buffer, FFT_MagBuffer);
-    //     THD += THD_to_nth(FFT_MagBuffer, 5) / FFT_REPEAT;
-    // }
-
-    // sprintf(labelTHD, "THD = %.2f%%", THD*100);
-
-    // // freq
-    // float freq = freq_u16(FFT_MagBuffer);
-    // sprintf(labelFreq, "Freq = %.3fHz", freq);
-}
-
-static void switch_mode()
-{
-    // set_switch_mode(btn->param);
-
-    // switch (btn->param)
-    // {
-    //     case F1_NORMAL:
-    //         sprintf(labelMode, "F1: Normal");
-    //         break;
-    //     case F2_TOP_DISTORTION:
-    //         sprintf(labelMode, "F2: Top Distortion");
-    //         break;
-    //     case F3_BOTTOM_DISTORTION:
-    //         sprintf(labelMode, "F3: Bottom Distortion");
-    //         break;
-    //     case F4_TWOWAY_DISTORTION:
-    //         sprintf(labelMode, "F4: Two-way Distortion");
-    //         break;
-    //     case F5_CROSSOVER_DISTORTION:
-    //         sprintf(labelMode, "F5: Crossover Distortion");
-    //         break;
-    //     default: break;
-    // }
-
-    // if (!AutoMode)
-    //     start_sampling();
+        pt += 4;
+        pt_x += 4;
+    }
 }

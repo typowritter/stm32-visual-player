@@ -42,7 +42,7 @@
 #define TEXT_COLOR              BLACK
 #define GRAPH_COLOR             PURPLE
 
-
+#define FFT_SIZE                256
 
 void GUI_Init(void);
 
