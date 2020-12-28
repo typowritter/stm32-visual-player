@@ -1,8 +1,6 @@
 #include "player.h"
 #include "bsp_sdio_sdcard.h"
 #include "ff.h"
-// #include "tty.h"
-#include "bsp_led.h"
 
 typedef uint16_t    Sample_t;
 #define POINTS_NUM  1024

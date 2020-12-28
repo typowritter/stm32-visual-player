@@ -41,7 +41,6 @@ User/src/gui.c \
 User/src/delay.c \
 User/src/stm32f10x_it.c \
 User/src/ili9341.c \
-User/src/bsp_led.c \
 User/src/bsp_key.c \
 User/src/bsp_sdio_sdcard.c\
 User/src/player.c \

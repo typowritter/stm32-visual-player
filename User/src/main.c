@@ -2,11 +2,13 @@
 #include "ili9341.h"
 #include "delay.h"
 #include "gui.h"
-#include "bsp_led.h"
 #include "bsp_key.h"
 #include "player.h"
+
 #ifdef DEBUG
 #include "tty.h"
+#else
+#define tty_init()
 #endif
 
 // 更新图像、显示信息的标志
@@ -17,7 +19,6 @@ int main(void)
 {
     delay_init();
     Key_GPIO_Config();
-    LED_GPIO_Config();
     tty_init();
     player_init();
 
