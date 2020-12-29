@@ -21,6 +21,7 @@
 #define GRAPH_END_Y             120
 #define GRAPH_WIDTH             (GRAPH_END_X - GRAPH_START_X)
 #define GRAPH_HEIGHT            (GRAPH_END_Y - GRAPH_START_Y)
+#define GRAPH_GAP               17 // 使得横向刚好有256个点
 
 #define LABEL_ARTIST_X          (x_Max/2 - 50)
 #define LABEL_ARTIST_Y          (GRAPH_END_Y + 5)
@@ -45,6 +46,8 @@
 #define FFT_SIZE                256
 
 void GUI_Init(void);
+void update_sec(void);
+void plot_graph(void);
 
 #endif /* __GUI_H */
 

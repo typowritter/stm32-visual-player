@@ -13,6 +13,7 @@
 #include "stm32f10x.h"
 #include "fonts.h"
 
+/* 因为只有一个SPI设备，直接把CS引脚接地，不再分配端口进行读写 */
 #define SOFT_SELECT         0
 
 #define TFT_APBxClock       RCC_APB2PeriphClockCmd // all pins are on APB2

@@ -36,6 +36,14 @@ int main(void)
                 player_resume();
         }
 
+        // 检测到下一首按键按下
+        if (Key_Scan(KEY2_GPIO_PORT, KEY2_GPIO_PIN) == KEY_ON)
+        {
+            player_stop();
+            delay_ms(128);
+            player_start();
+        }
+
         // 前半部分播放完成
         if (flag_UpdateHalf_1)
         {
@@ -52,7 +60,7 @@ int main(void)
             // 每完全更新6次缓冲区（128ms x 6 = 768ms）就刷新一次进度显示
             if (disp_updCounter > 5)
             {
-                update_msg();
+                update_sec();
                 disp_updCounter = 0;
             }
 

@@ -2,7 +2,7 @@
   ******************************************************************************
   * @file    ili9341.c
   * @author  杨向南 yxnan@pm.me
-  * @date    2020-11-14
+  * @date    2020-10-14
   * @brief   SPI driver for ili9341 controller
   ******************************************************************************
   */
@@ -334,7 +334,7 @@ static void SPI_init()
     SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
     SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_2;
     SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
-    SPI_InitStructure.SPI_CRCPolynomial = 7;
+    SPI_InitStructure.SPI_CRCPolynomial = 7; // 用不到
     SPI_Init(TFT_SPIx, &SPI_InitStructure);
 
     SPI_Cmd(TFT_SPIx, ENABLE);
@@ -444,7 +444,7 @@ static void TFT_config()
     sendParameter(0x0F);    // 15.
 
     sendCmd(0x11);  // SLEEP OUT
-    delay_ms(15);   // min = 5ms
+    delay_ms(15);   // min = 5ms，实测15以上才能正常工作
 
     sendCmd(0x29);  // DISPLAY ON
 }
@@ -454,7 +454,7 @@ void TFT_init()
     SPI_init();
     TFT_config();
 
-    set_gram(1);
+    set_gram(1); // Gram=1，横向非镜像显示
     set_foreColor(BLACK);
     set_backColor(WHITE);
     set_font(&Font8x16);

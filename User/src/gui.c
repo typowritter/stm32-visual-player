@@ -13,6 +13,10 @@
 #include <string.h>
 
 extern __IO uint16_t AudioBuffer[];
+
+// 文件头
+extern uint8_t  Artist [];
+extern uint8_t  Title  [];
 extern uint16_t Chunks;
 
 static uint8_t label_artist [25];
@@ -22,8 +26,8 @@ static uint8_t label_period [16];
 static uint16_t sec_elap;
 __IO   uint16_t sec_total;
 
-static uint16_t raw_buffer[FFT_SIZE];
-static int16_t  fft_buffer[FFT_SIZE * 2];
+static float    real_buffer[FFT_SIZE];
+static float    imag_buffer[FFT_SIZE];
 static uint16_t mag_buffer[FFT_SIZE];
 
 static draw_button(uint8_t text[], uint16_t x, uint16_t y);
@@ -47,8 +51,8 @@ void GUI_Init(void)
               GRAPH_END_Y);
 
     // 描绘标签
-    sprintf(label_artist, "Artist: ak+q");
-    sprintf(label_title,  "Title : ikasu");
+    sprintf(label_artist, "Artist: ____");
+    sprintf(label_title,  "Title : ____");
     sprintf(label_period, "00:00 | 00:00");
     disp_string(LABEL_ARTIST_X, LABEL_ARTIST_Y, label_artist);
     disp_string(LABEL_TITLE_X,  LABEL_TITLE_Y,  label_title);
@@ -89,79 +93,84 @@ static draw_button(uint8_t text[], uint16_t x, uint16_t y)
 
 void update_msg(void)
 {
+    clear_region(LABEL_ARTIST_X, LABEL_ARTIST_Y,
+        FONT_W*20, FONT_H*2+10);
+
+    // 描绘标签
+    sprintf(label_artist, "Artist: %s", Artist);
+    sprintf(label_title,  "Title : %s", Title);
+
+    set_foreColor(TEXT_COLOR);
+    set_backColor(WHITE);
+    disp_string(LABEL_ARTIST_X, LABEL_ARTIST_Y, label_artist);
+    disp_string(LABEL_TITLE_X,  LABEL_TITLE_Y,  label_title);
+
+    sec_total = Chunks * 0.032; // 一个Chunk = 32ms
+    update_sec();
+}
+
+void update_sec(void)
+{
     sec_elap = sec_total - Chunks*0.032;
     sprintf(label_period, "%02d:%02d | %02d:%02d",
         sec_elap/60, sec_elap%60,
         sec_total/60, sec_total%60);
 
     clear_region(LABEL_PERIOD_X, LABEL_PERIOD_Y,
-        FONT_W*12, FONT_H);
+        FONT_W*13, FONT_H);
 
     set_foreColor(TEXT_COLOR);
     set_backColor(WHITE);
     disp_string(LABEL_PERIOD_X, LABEL_PERIOD_Y, label_period);
 }
 
-void plot_graph()
+void plot_graph(void)
 {
-    clear_region(GRAPH_START_X+17, GRAPH_START_Y+1,
-        GRAPH_WIDTH-33, GRAPH_HEIGHT-2);
-
-    // arm_rfft_q15(&arm_rfft_sR_q15_len256, raw_buffer, fft_buffer);
-    // arm_cmplx_mag_q15(fft_buffer, mag_buffer, FFT_SIZE);
-
-    // int16_t real, imag;
-    // int16_t *pSrc = fft_buffer;
-    // uint16_t *pDst = mag_buffer;
-    // int32_t acc0, acc1;
-    // uint16_t numSamples = FFT_SIZE/2;
-
-    // while (numSamples > 0)
-    // {
-    //     /* out = sqrt(real * real + imag * imag) */
-    //     real = *pSrc++;
-    //     imag = *pSrc++;
-
-    //     acc0 = (real * real);
-    //     acc1 = (imag * imag);
-
-    //     // arm_sqrt_q15((int16_t) (((int64_t) acc0 + acc1) >> 17), pDst++);
-    //     *pDst = sqrt((float)(acc0 + acc1));
-    //     pDst++;
-
-    //     numSamples--;
-    // }
-
-    uint16_t *pt = AudioBuffer;
-    uint16_t pt_x, pt_y;
-    // uint16_t prev_x, prev_y;
-
-    // prev_x = pt_x = GRAPH_START_X+17;
-    // prev_y = pt_y = GRAPH_END_Y - ((*pt/4096.0) * GRAPH_HEIGHT) - 1 + (GRAPH_HEIGHT/2);
-    // set_foreColor(GRAPH_COLOR);
-    // for (uint16_t i = 0; i < 64; i++)
-    // {
-    //     pt += 4;
-    //     pt_x += 4;
-    //     pt_y = GRAPH_END_Y - ((*pt/4096.0) * GRAPH_HEIGHT) - 1 + (GRAPH_HEIGHT/2);
-
-    //     if (pt_y >= GRAPH_END_Y)
-    //         pt_y = GRAPH_END_Y*2 - pt_y;
-
-    //     draw_line(prev_x, prev_y,
-    //         pt_x, pt_y);
-
-    //     prev_x = pt_x;
-    //     prev_y = pt_y;
-    // }
-
-    pt_x = GRAPH_START_X+17;
-    set_foreColor(GRAPH_COLOR);
-    for (uint16_t i = 0; i < 64; i++)
+    /* memcpy 不工作，手动复制 */
+    // memcpy(AudioBuffer, real_buffer, FFT_SIZE*sizeof(uint16_t));
+    for (uint16_t i = 0; i < FFT_SIZE; ++i)
     {
-        pt_y = GRAPH_END_Y - ((*pt/4096.0) * GRAPH_HEIGHT) - 1 + (GRAPH_HEIGHT/2);
-        if (pt_y >= GRAPH_END_Y)
-            pt_y = GRAPH_END_Y*2 - pt_y;
+        real_buffer[i] = (float)AudioBuffer[i];
+    }
+
+    // 调用汇编FFT函数
+    // FFT_FUN(real_buffer, imag_buffer);
+
+    float real, imag;
+    float *pSrc1 = real_buffer;
+    float *pSrc2 = imag_buffer;
+    uint16_t *pDst = mag_buffer;
+    float acc0, acc1;
+    uint16_t numSamples = FFT_SIZE;
+
+    // 计算幅值
+    while (numSamples > 0)
+    {
+        /* out = sqrt(real * real + imag * imag) */
+        real = *pSrc1++;
+        imag = *pSrc2++;
+
+        acc0 = (real * real);
+        acc1 = (imag * imag);
+
+        *pDst = (uint16_t) sqrt(acc0 + acc1);
+        pDst++;
+
+        numSamples--;
+    }
+
+    // 绘制频谱图像
+    clear_region(GRAPH_START_X+GRAPH_GAP, GRAPH_START_Y+1,
+        GRAPH_WIDTH-2*GRAPH_GAP+1, GRAPH_HEIGHT-2);
+
+    uint16_t *pt = mag_buffer+1; // 丢弃直流分量
+    uint16_t pt_x, pt_y;
+
+    pt_x = GRAPH_START_X+GRAPH_GAP;
+    set_foreColor(GRAPH_COLOR);
+    for (uint16_t i = 0; i < 64; i++)  // 每4个连续数据点为一组
+    {
+        pt_y = GRAPH_END_Y - ((*pt/4096.0) * GRAPH_HEIGHT) - 1;
 
         draw_rect(pt_x, pt_y, 4, GRAPH_END_Y-pt_y, 1);
 

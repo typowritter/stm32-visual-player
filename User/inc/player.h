@@ -24,7 +24,8 @@ void player_start(void);
 void player_pause(void);
 void player_stop(void);
 void player_resume(void);
-void check_reload(void);
+void update_half_1(void);
+void update_half_2(void);
 PlayerStatu_t get_statu(void);
 
 
